@@ -1,2 +1,2 @@
 # webcalc
-A calculator practice purpose
+A calculator for practice purpose
