@@ -5,19 +5,13 @@ import thunk from  'redux-thunk';
 import {createStore,bindActionCreators, applyMiddleware} from 'redux';
 import "./style/index.scss";
 
-import { BrowserRouter as Router, Route , withRouter} from 'react-router-dom'
+import { HashRouter as Router, Route , withRouter} from 'react-router-dom'
 
 import {Input,Button,Layout,Row,Col} from 'antd';
 import 'antd/dist/antd.css';
 const {Header,Footer,Sider,Content} = Layout;
 
-class MyTest extends React.Component {
-  render(){
-    return (
-      <div>Hello</div>
-    );
-  }
-}
+
 
 class MyKey extends React.Component {
   render(){
@@ -162,7 +156,9 @@ ReactDOM.render(
   <div>
   <Provider store={store}>
   <Router>
+  <div>
   <Route exact path="/" component={MyAppConnected}/>
+  </div>
   </Router>
   </Provider>
   </div>,
