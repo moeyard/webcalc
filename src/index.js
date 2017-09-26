@@ -1,18 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider,connect} from  'react-redux';
-//import thunk from  'redux-thunk';
+import thunk from  'redux-thunk';
 import {createStore,bindActionCreators, applyMiddleware} from 'redux';
-
 import "./style/index.scss";
 
+import { BrowserRouter as Router, Route , withRouter} from 'react-router-dom'
+
+import {Input,Button,Layout,Row,Col} from 'antd';
+import 'antd/dist/antd.css';
+const {Header,Footer,Sider,Content} = Layout;
+
+class MyTest extends React.Component {
+  render(){
+    return (
+      <div>Hello</div>
+    );
+  }
+}
 
 class MyKey extends React.Component {
   render(){
     return (
-      <div className ='key' > 
-      <button onClick={this.props.clickKey.bind(this,this.props.value)}> {this.props.value}</button>
-      </div>
+      <Button size='large' onClick={this.props.clickKey.bind(this,this.props.value)}> {this.props.value}</Button>
     );
 
   }
@@ -22,9 +32,7 @@ class MyKey extends React.Component {
 class MyMon extends React.Component{
   render (){
     return (
-      <div className='mon' >
-      {this.props.value}
-      </div>
+      <Input value = {this.props.value}/>
     )
   };
 }
@@ -35,23 +43,36 @@ class MyApp extends React.Component {
     let actions = this.props.actions;
     return  (
       <div>
-      <MyMon value = {state.value} />
-      <MyKey value = {7} clickKey={actions.clickKey}/>
-      <MyKey value = {8} clickKey={actions.clickKey}/>
-      <MyKey value = {9} clickKey={actions.clickKey}/>
-      <br/>
-      <MyKey value = {4} clickKey={actions.clickKey}/>
-      <MyKey value = {5} clickKey={actions.clickKey}/>
-      <MyKey value = {6} clickKey={actions.clickKey}/>
-      <br/>
-      <MyKey value = {1} clickKey={actions.clickKey}/>
-      <MyKey value = {2} clickKey={actions.clickKey}/>
-      <MyKey value = {3} clickKey={actions.clickKey}/>
-      <br/>
-      <MyKey value = {0} clickKey={actions.clickKey}/>
-      <MyKey value = {'+'} clickKey={actions.clickKey}/>
-      <MyKey value = {'='} clickKey={actions.clickKey}/>
-      <br/>
+      <Row>
+      <Col span={9}></Col>
+      <Col span={6}>
+      <Row> <MyMon value = {state.value} /></Row>
+      <Row>
+      <Col span={8} ><MyKey value = {7} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {8} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {9} clickKey={actions.fetch}/></Col>
+      </Row>
+      <Row> 
+      <Col span={8} ><MyKey value = {4} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {5} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {6} clickKey={actions.fetch}/></Col>
+      </Row> 
+      
+      <Row> 
+      <Col span={8} ><MyKey value = {1} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {2} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {3} clickKey={actions.fetch}/></Col>
+      </Row> 
+      
+      <Row> 
+      <Col span={8} ><MyKey value = {0} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {'+'} clickKey={actions.fetch}/></Col>
+      <Col span={8} ><MyKey value = {'='} clickKey={actions.fetch}/></Col>
+      </Row> 
+
+      </Col>
+      <Col span={9}></Col>
+      </Row>
       </div>
     );
   } 
@@ -102,16 +123,26 @@ const Reducer = (state=InitState, action) => {
   }
 };
 
-//const store = createStore(Reducer, applyMiddleware(thunk));
-const store = createStore(Reducer);
+const store = createStore(Reducer, applyMiddleware(thunk));
+//const store = createStore(Reducer);
 
 const MapState = state =>({
   state: state
 });
 
 let actions = {
-  toggle: ()=>({
-      type: 'toggle'
+  fetch: (key) => ((dispatch,getState)=>{
+    fetch("http://localhost:8080/key", {
+        method : 'POST',
+        body   : JSON.stringify({value:key}),
+        headers : new Headers({
+          'Content-Type' : 'application/json'
+        })
+      } ).then(
+      res => { return res.json(); }
+    ).then(
+      res => { dispatch(actions.clickKey(res.value));}
+    );
   }),
   clickKey:(key)=> ({
     type: 'clickKey',
@@ -124,23 +155,26 @@ const MapDispatch = dispatch => ({
 });
 
 
-let MyAppConnected = connect(MapState,MapDispatch)(MyApp);
+//let MyAppConnected = connect(MapState,MapDispatch)(MyApp);
+let MyAppConnected = withRouter(connect(MapState,MapDispatch)(MyApp));
 
 ReactDOM.render(
   <div>
   <Provider store={store}>
-  <MyAppConnected />
+  <Router>
+  <Route exact path="/" component={MyAppConnected}/>
+  </Router>
   </Provider>
   </div>,
   document.getElementById('app')
 );
 
 
-//document.addEventListener('keypress', (e)=>{
-//    //alert(e.key);
-//    store.dispatch(actions.clickKey(e.key));
-//    return;
-//},false);
+document.addEventListener('keypress', (e)=>{
+    //alert(e.key);
+    store.dispatch(actions.fetch(e.key));
+    return;
+},false);
 
 
 
