@@ -126,7 +126,7 @@ const MapState = state =>({
 
 let actions = {
   fetch: (key) => ((dispatch,getState)=>{
-    fetch("http://localhost:8080/key", {
+    fetch("/key", {
         method : 'POST',
         body   : JSON.stringify({value:key}),
         headers : new Headers({
